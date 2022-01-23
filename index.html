@@ -21,32 +21,21 @@
 	let jj = 0;
 	let width = 13;
 	let height = 9;
-	let cells = [];
 	let snakeHeadX = 0;
 	let snakeHeadY = 0;
 	let direction = "ArrowRight";
 	let snakeLength = 3;
 	let snake = [];
 	let snakeTail = [];
-	let appleX = Math.floor(Math.random() * width + 1);
-	let appleY = Math.floor(Math.random() * height + 1);
+	let appleX;
+	let appleY;
 	
-	function checkCell(x, y) {
-		if (snakeHeadX == x && snakeHeadY == y) {
-			return true;
-		}
-		if (cells[x] && (cells[x][y] > 0)) {
-			return true;
-		}
-	}
 		
 	function init() {
 		while (j < height) {
 			i = 0;
 			while (i < width) {
 				console.log(i, j);
-				cells[i] = cells[i] || [];
-				cells[i][j] = 0;
 				ctx.beginPath();
 				ctx.rect(35 * i + 20,35 * j + 20,25,25);
 				ctx.strokeStyle = "#000";
@@ -58,6 +47,21 @@
 			}
 			j++;
 		}
+		drawApple();
+	}
+	function drawApple() {
+		appleX = Math.floor(Math.random() * width);
+		appleY = Math.floor(Math.random() * height);
+		snake.forEach((snakeCell) => {
+			if(snakeCell[0] == appleX && snakeCell[1] == appleY) {
+				drawApple();
+			}
+		});
+		ctx.beginPath();
+		ctx.rect(35 * appleX + 20,35 * appleY + 20,25,25);
+		ctx.fillStyle = "#00ff";
+		ctx.fill();
+		ctx.closePath();
 	}
 	function draw() {
 		move();
@@ -76,14 +80,8 @@
 		}
 		if (snakeHeadX == appleX && snakeHeadY == appleY) {
 			snakeLength++;
-			appleX = Math.floor(Math.random() * width);
-			appleY = Math.floor(Math.random() * height);
+			drawApple();
 		}
-		ctx.beginPath();
-		ctx.rect(35 * appleX + 20,35 * appleY + 20,25,25);
-		ctx.fillStyle = "#00ff";
-		ctx.fill();
-		ctx.closePath();
 		
 	}
 	const opposites = {
@@ -100,37 +98,50 @@
 	}
 	function move() {
 		//console.log(snakeHeadX, snakeHeadY);
-		cells[snakeHeadX][snakeHeadY] = snakeLength;
 		switch(direction) {
 			case "ArrowUp":
 				if (snakeHeadY > 0) {
 					snakeHeadY = snakeHeadY - 1;
-					snake.push([snakeHeadX, snakeHeadY]);
+				} else {
+					gameOver();
 				}
 				break;
 			case "ArrowDown":
 				if (snakeHeadY < height - 1) {
 					snakeHeadY = snakeHeadY + 1;
-					snake.push([snakeHeadX, snakeHeadY]);
+				} else {
+					gameOver();
 				}
 				break;
 			case "ArrowLeft":
 				if (snakeHeadX > 0) {
 					snakeHeadX = snakeHeadX - 1;
-					snake.push([snakeHeadX, snakeHeadY]);
+				} else {
+					gameOver();
 				}
 				break;
 			case "ArrowRight":
 				if (snakeHeadX < width - 1) {
 					snakeHeadX = snakeHeadX + 1;
-					snake.push([snakeHeadX, snakeHeadY]);
+				} else {
+					gameOver();
 				}
 				break;
 		}
+		snake.forEach((snakeCell) => {
+			if(snakeCell[0] == snakeHeadX && snakeCell[1] == snakeHeadY) {
+				gameOver();
+			}
+		});
+		snake.push([snakeHeadX, snakeHeadY]);
+	}
+	function gameOver() {
+		alert('Game over');
+		clearInterval(drawInterval);
 	}
 	init();
 	let interval = 150;
-	setInterval(draw, interval);
+	let drawInterval = setInterval(draw, interval);
 	document.addEventListener('keyup', setDirection);
 	
 </script>
